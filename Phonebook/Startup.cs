@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Phonebook.Models;
 
 namespace Phonebook
 {
@@ -23,6 +25,9 @@ namespace Phonebook
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContextPool<PhonebookContext>(options => 
+                options.UseSqlServer(Configuration.GetConnectionString("localDbConnection")));
+
             // Add framework services.
             services
                 .AddRazorPages()
