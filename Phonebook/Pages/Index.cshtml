@@ -3,7 +3,7 @@
     ViewData["Title"] = "PhoneNumbers";
 }
 
-<h2>PhoneNumbers</h2>
+<h2>Телефонный справочник</h2>
 
 @(Html.DevExtreme().DataGrid<Phonebook.Models.PhoneNumber.PhoneNumber>()
     .DataSource(ds => ds.Mvc()
@@ -35,7 +35,20 @@
 
         columns.AddFor(m => m.FullName);
 
-        columns.AddFor(m => m.Number);
+        columns.AddFor(m => m.Number)
+            .CellTemplate(new JS("customizePhoneNumber"));
+
+        ////triggers by clickEditBtn in cellTemplate of Number column 
+        columns.Add()
+            .Type(GridCommandColumnType.Buttons)
+            .CssClass("Grid__Column--ComandButtons")
+            .Buttons(btns =>
+            {
+                btns.Add()
+                .Name(GridColumnButtonName.Edit)
+                .CssClass("JQ_EditButton");
+
+            });
 
         columns.AddFor(m => m.Note);
     })
@@ -45,7 +58,7 @@
         .AllowUpdating(true)
         .AllowDeleting(true)
         .Popup(p => p
-            .Title("Редактирование")
+            .Title("Телефонная карточка")
             .ShowTitle(true)
             .Width(700)
             .Height(500)
@@ -61,7 +74,12 @@
                     groupItems.AddSimpleFor(m => m.MicrodistrictId);
                     groupItems.AddSimpleFor(m => m.Address);
                     groupItems.AddSimpleFor(m => m.FullName);
-                    groupItems.AddSimpleFor(m => m.Number);
+                    groupItems.AddSimpleFor(m => m.Number)
+                            .Editor(e => e
+                                .TextBox()
+                                .Mask("+7 (X00) 000-00-00")
+                                .MaskRules(new { X = new JS("/[02-9]/") })
+                            );
 
                     groupItems.AddSimpleFor(m => m.Note)
                         .Editor(editor => editor.TextArea().Height(100));
@@ -69,3 +87,26 @@
         }))
     )
 )
+<style>
+    .Grid__Column--ComandButtons {
+        display: none;
+    }
+</style>
+<script>
+
+    function customizePhoneNumber($cell, cellInfo) {
+        rowIndex = cellInfo.rowIndex;
+        number = cellInfo.text;
+        formatedNumber = number ? "+7(" + number.slice(0, 3) + ")" + number.slice(3, 6) + "-" + number.slice(6, 8) + "-" + number.slice(8, 10) : "";
+        $cell.append("<a href='#' onclick='clickEditBtn([" + rowIndex + "])'>" + formatedNumber +"</a>");
+    }
+
+    //trigger click Edit button by link on Phone Number
+    function clickEditBtn(rowIndex) {
+        //diffrence in 1 between rowIndex form cellTemplate and aria-rowindex in attribute
+        rowIndex++
+        row = "[aria-rowindex=" + rowIndex + "] .JQ_EditButton";
+        $(row).trigger("click")
+    }
+
+</script>
