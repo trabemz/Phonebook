@@ -5,18 +5,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Phonebook.Models
+namespace Phonebook.Models.PhoneNumber
 {
     public class PhoneNumber
     {
         public int Id { get; set; }
 
         [ForeignKey("District")]
-        [Display(Name = "Район")]
+        [Display(Name = "Округ")]
         public int? DistrictId { get; set; }
 
         [ForeignKey("Microdistrict")]
-        [Display(Name = "Микрорайон")]
+        [Display(Name = "Район")]
         public int? MicrodistrictId { get; set; }
 
         [Display(Name = "Адрес")]

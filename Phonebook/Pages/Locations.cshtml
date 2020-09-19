@@ -1,0 +1,53 @@
+﻿@page
+@{
+    ViewData["Title"] = "Locations";
+}
+
+<h2>Locations</h2>
+
+@(Html.DevExtreme().DataGrid<Phonebook.Models.Location.District>()
+    .DataSource(ds => ds.Mvc()
+        .Controller("TerritorialUnitsWebApi")
+        .LoadAction("GetDistrict")
+        .InsertAction("PostDistrict")
+        .UpdateAction("PutDistrict")
+        .DeleteAction("Delete")
+        .Key("ID")
+    )
+    .RemoteOperations(true)
+    .Columns(columns => {
+
+        columns.AddFor(m => m.Name);
+    })
+    .Editing(e => e
+        .AllowAdding(true)
+        .AllowUpdating(true)
+        .AllowDeleting(true)
+    )
+)
+@(Html.DevExtreme().DataGrid<Phonebook.Models.Location.Microdistrict>()
+    .DataSource(ds => ds.Mvc()
+        .Controller("TerritorialUnitsWebApi")
+        .LoadAction("GetMicrodistrict")
+        .InsertAction("PostMicrodistrict")
+        .UpdateAction("PutMicrodistrict")
+        .DeleteAction("Delete")
+        .Key("ID")
+    )
+    .RemoteOperations(true)
+    .Columns(columns => {
+
+        columns.AddFor(m => m.Name);
+        columns.AddFor(m => m.DistrictId)
+            .Lookup(lookup => lookup
+                        .DataSource(d => d.Mvc().Controller("PhoneNumbersWebApi").LoadAction("DistrictLookup").Key("Value"))
+                        .ValueExpr("Value")
+                        .DisplayExpr("Text")
+                    ); ;
+    })
+    .Editing(e => e
+        .AllowAdding(true)
+        .AllowUpdating(true)
+        .AllowDeleting(true)
+    )
+)

@@ -1,30 +1,71 @@
-@page
-@using Phonebook.Models
+﻿@page
+@{
+    ViewData["Title"] = "PhoneNumbers";
+}
 
-<h2>Home</h2>
+<h2>PhoneNumbers</h2>
 
-@(Html.DevExtreme().DataGrid<SampleOrder>()
-    .ShowBorders(true)
-    .DataSource(d => d.Mvc().Controller("SampleData").LoadAction("Get").Key("OrderID"))
-    .Columns(columns => {
-        columns.AddFor(m => m.OrderID);
-        columns.AddFor(m => m.OrderDate);
-        columns.AddFor(m => m.CustomerName);
-        columns.AddFor(m => m.ShipCountry);
-        columns.AddFor(m => m.ShipCity);
-    })
-    .Paging(p => p.PageSize(10))
-    .FilterRow(f => f.Visible(true))
-    .HeaderFilter(f => f.Visible(true))
-    .GroupPanel(p => p.Visible(true))
-    .Grouping(g => g.AutoExpandAll(false))
+@(Html.DevExtreme().DataGrid<Phonebook.Models.PhoneNumber.PhoneNumber>()
+    .DataSource(ds => ds.Mvc()
+        .Controller("PhoneNumbersWebApi")
+        .LoadAction("Get")
+        .InsertAction("Post")
+        .UpdateAction("Put")
+        .DeleteAction("Delete")
+        .Key("Id")
+    )
     .RemoteOperations(true)
-    .Summary(s => s
-        .TotalItems(totalItems => {
-            totalItems.AddFor(m => m.ShipCity).SummaryType(SummaryType.Count);
-        })
-        .GroupItems(groupItems => {
-            groupItems.Add().SummaryType(SummaryType.Count);
-        })
+    .Columns(columns => {
+
+        columns.AddFor(m => m.DistrictId)
+            .Lookup(lookup => lookup
+                    .DataSource(d => d.Mvc().Controller("PhoneNumbersWebApi").LoadAction("DistrictLookup").Key("Value"))
+                    .ValueExpr("Value")
+                    .DisplayExpr("Text")
+                );
+
+        columns.AddFor(m => m.MicrodistrictId)
+            .Lookup(lookup => lookup
+                    .DataSource(d => d.Mvc().Controller("PhoneNumbersWebApi").LoadAction("MicrodistrictLookup").Key("Value"))
+                    .ValueExpr("Value")
+                    .DisplayExpr("Text")
+                );
+
+        columns.AddFor(m => m.Address);
+
+        columns.AddFor(m => m.FullName);
+
+        columns.AddFor(m => m.Number);
+
+        columns.AddFor(m => m.Note);
+    })
+    .Editing(e => e
+        .Mode(GridEditMode.Popup)
+        .AllowAdding(true)
+        .AllowUpdating(true)
+        .AllowDeleting(true)
+        .Popup(p => p
+            .Title("Редактирование")
+            .ShowTitle(true)
+            .Width(700)
+            .Height(500)
+        )
+        .Form(f => f.Items(items =>
+        {
+            items.AddGroup()
+                .ColCount(1)
+                .ColSpan(2)
+                .Items(groupItems =>
+                {
+                    groupItems.AddSimpleFor(m => m.DistrictId);
+                    groupItems.AddSimpleFor(m => m.MicrodistrictId);
+                    groupItems.AddSimpleFor(m => m.Address);
+                    groupItems.AddSimpleFor(m => m.FullName);
+                    groupItems.AddSimpleFor(m => m.Number);
+
+                    groupItems.AddSimpleFor(m => m.Note)
+                        .Editor(editor => editor.TextArea().Height(100));
+                });
+        }))
     )
 )

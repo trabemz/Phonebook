@@ -15,7 +15,7 @@ namespace Phonebook.Models
         }
 
         public DbSet<TerritorialUnit> Locations { get; set; }
-        public DbSet<PhoneNumber> PhoneNumbers { get; set; }
+        public DbSet<PhoneNumber.PhoneNumber> PhoneNumbers { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<District>();
