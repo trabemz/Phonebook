@@ -14,6 +14,11 @@
         .DeleteAction("Delete")
         .Key("Id")
     )
+    .FilterRow(filterRow => filterRow
+        .Visible(true)
+        .ApplyFilter(GridApplyFilterMode.Auto)
+    )
+    .HeaderFilter(headerFilter => headerFilter.Visible(true))
     .RemoteOperations(true)
     .Columns(columns => {
 
