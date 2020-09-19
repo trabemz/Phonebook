@@ -23,17 +23,18 @@
     .Columns(columns => {
 
         columns.AddFor(m => m.DistrictId)
+            .SetCellValue("setDistrictValue")
             .Lookup(lookup => lookup
-                    .DataSource(d => d.Mvc().Controller("PhoneNumbersWebApi").LoadAction("DistrictLookup").Key("Value"))
-                    .ValueExpr("Value")
-                    .DisplayExpr("Text")
+                    .DataSource(d => d.Mvc().Controller("TerritorialUnitsWebApi").LoadAction("GetDistricts").Key("ID"))
+                    .ValueExpr("ID")
+                    .DisplayExpr("Name")
                 );
 
         columns.AddFor(m => m.MicrodistrictId)
             .Lookup(lookup => lookup
-                    .DataSource(d => d.Mvc().Controller("PhoneNumbersWebApi").LoadAction("MicrodistrictLookup").Key("Value"))
-                    .ValueExpr("Value")
-                    .DisplayExpr("Text")
+                    .DataSource("getMicrodistricts")
+                    .ValueExpr("ID")
+                    .DisplayExpr("Name")
                 );
 
         columns.AddFor(m => m.Address);
@@ -66,7 +67,7 @@
             .Title("Телефонная карточка")
             .ShowTitle(true)
             .Width(700)
-            .Height(500)
+            .Height(525)
         )
         .Form(f => f.Items(items =>
         {
@@ -91,6 +92,7 @@
                 });
         }))
     )
+    .OnEditorPreparing("onEditorPreparing")
 )
 <style>
     .Grid__Column--ComandButtons {
@@ -114,4 +116,23 @@
         $(row).trigger("click")
     }
 
+    function onEditorPreparing(e) {
+        if(e.parentType === "dataRow" && e.dataField === "MicrodistrictId") {
+            e.editorOptions.disabled = (typeof e.row.data.DistrictId !== "number");
+        }
+    }
+    function getMicrodistricts(options) {
+        console.log(options.data);
+        return {
+            store: DevExpress.data.AspNet.createStore({
+                key: "ID",
+                loadUrl: '@Url.Action("GetMicrodistricts", "TerritorialUnitsWebApi", new { httproute = true })'
+            }),
+            filter: options.data ? ["DistrictId", "=", options.data.DistrictId] : null
+        };
+    }
+    function setDistrictValue(rowData, value) {
+        rowData.DistrictId = value;
+        rowData.MicrodistrictId = null;
+    }
 </script>

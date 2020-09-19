@@ -32,7 +32,7 @@ namespace Phonebook.Models.PhoneNumber
         [Display(Name = "Телефон")]
         [DataType(DataType.PhoneNumber)]
         [RegularExpression(@"^(495|499)\d{7}$", 
-            ErrorMessage = "Введите правильный стационарный номер г.Москва. Код России (7), код Москвы (495 или 499).")]
+            ErrorMessage = "Введите правильный стационарный номер г.Москва. Код Москвы (495 или 499).")]
         public string Number { get; set; }
 
         [Display(Name = "Примечание")]

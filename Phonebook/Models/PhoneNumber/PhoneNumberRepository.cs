@@ -7,7 +7,7 @@ namespace Phonebook.Models.PhoneNumber
 {
     public class PhoneNumberRepository : IPhoneNumberRepository
     {
-        PhonebookContext _context;
+        private readonly PhonebookContext _context;
         public PhoneNumberRepository(PhonebookContext context)
         {
             _context = context;

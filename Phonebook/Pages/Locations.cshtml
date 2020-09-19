@@ -8,7 +8,7 @@
 @(Html.DevExtreme().DataGrid<Phonebook.Models.Location.District>()
     .DataSource(ds => ds.Mvc()
         .Controller("TerritorialUnitsWebApi")
-        .LoadAction("GetDistrict")
+        .LoadAction("GetDistricts")
         .InsertAction("PostDistrict")
         .UpdateAction("PutDistrict")
         .DeleteAction("Delete")
@@ -28,7 +28,7 @@
 @(Html.DevExtreme().DataGrid<Phonebook.Models.Location.Microdistrict>()
     .DataSource(ds => ds.Mvc()
         .Controller("TerritorialUnitsWebApi")
-        .LoadAction("GetMicrodistrict")
+        .LoadAction("GetMicrodistricts")
         .InsertAction("PostMicrodistrict")
         .UpdateAction("PutMicrodistrict")
         .DeleteAction("Delete")
@@ -40,9 +40,9 @@
         columns.AddFor(m => m.Name);
         columns.AddFor(m => m.DistrictId)
             .Lookup(lookup => lookup
-                        .DataSource(d => d.Mvc().Controller("PhoneNumbersWebApi").LoadAction("DistrictLookup").Key("Value"))
-                        .ValueExpr("Value")
-                        .DisplayExpr("Text")
+                        .DataSource(d => d.Mvc().Controller("TerritorialUnitsWebApi").LoadAction("GetDistricts").Key("ID"))
+                        .ValueExpr("ID")
+                        .DisplayExpr("Name")
                     ); ;
     })
     .Editing(e => e

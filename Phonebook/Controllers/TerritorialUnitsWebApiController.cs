@@ -18,14 +18,14 @@ namespace Phonebook.Controllers
     [Route("api/[controller]/[action]")]
     public class TerritorialUnitsWebApiController : Controller
     {
-        private PhonebookContext _context;
+        private readonly PhonebookContext _context;
 
         public TerritorialUnitsWebApiController(PhonebookContext context) {
             _context = context;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDistrict(DataSourceLoadOptions loadOptions) {
+        public async Task<IActionResult> GetDistricts(DataSourceLoadOptions loadOptions) {
             var locations = _context.Locations.OfType<District>().Select(i => new {
                 i.ID,
                 i.Name
@@ -41,7 +41,7 @@ namespace Phonebook.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMicrodistrict(DataSourceLoadOptions loadOptions)
+        public async Task<IActionResult> GetMicrodistricts(DataSourceLoadOptions loadOptions)
         {
             var locations = _context.Locations.OfType<Microdistrict>().Select(i => new {
                 i.ID,

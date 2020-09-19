@@ -19,7 +19,7 @@ namespace Phonebook.Controllers
     [Route("api/[controller]/[action]")]
     public class PhoneNumbersWebApiController : Controller
     {
-        private PhonebookContext _context;
+        private readonly PhonebookContext _context;
 
         public PhoneNumbersWebApiController(PhonebookContext context) {
             _context = context;
@@ -83,36 +83,6 @@ namespace Phonebook.Controllers
 
             _context.PhoneNumbers.Remove(model);
             await _context.SaveChangesAsync();
-        }
-
-        [HttpGet]
-        public object DistrictLookup(DataSourceLoadOptions loadOptions)
-        {
-            var lookup = from i in _context.Locations.OfType<District>()
-                         let text = i.Name 
-                         orderby i.Name
-                         select new
-                         {
-                             Value = i.ID,
-                             Text = text
-                         };
-
-            return DataSourceLoader.Load(lookup, loadOptions);
-        }
-
-        [HttpGet]
-        public object MicrodistrictLookup(DataSourceLoadOptions loadOptions)
-        {
-            var lookup = from i in _context.Locations.OfType<Microdistrict>()
-                         let text = i.Name
-                         orderby i.Name
-                         select new
-                         {
-                             Value = i.ID,
-                             Text = text
-                         };
-
-            return DataSourceLoader.Load(lookup, loadOptions);
         }
 
         private void PopulateModel(PhoneNumber model, IDictionary values) {
