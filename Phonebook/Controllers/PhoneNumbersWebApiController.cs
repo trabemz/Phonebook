@@ -12,7 +12,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Phonebook.Models;
 using Phonebook.Models.PhoneNumber;
-using Phonebook.Models.Location;
 
 namespace Phonebook.Controllers
 {
@@ -76,7 +75,7 @@ namespace Phonebook.Controllers
         }
 
         private void PopulateModel(PhoneNumber model, IDictionary values) {
-            string ID = nameof(PhoneNumber.Id);
+            string ID = nameof(PhoneNumber.ID);
             string DISTRICT_ID = nameof(PhoneNumber.DistrictId);
             string MICRODISTRICT_ID = nameof(PhoneNumber.MicrodistrictId);
             string ADDRESS = nameof(PhoneNumber.Address);
@@ -85,7 +84,7 @@ namespace Phonebook.Controllers
             string NOTE = nameof(PhoneNumber.Note);
 
             if(values.Contains(ID)) {
-                model.Id = Convert.ToInt32(values[ID]);
+                model.ID = Convert.ToInt32(values[ID]);
             }
 
             if(values.Contains(DISTRICT_ID)) {
@@ -123,5 +122,13 @@ namespace Phonebook.Controllers
 
             return String.Join(" ", messages);
         }
+
+        [HttpPost]
+        public async Task<JsonResult> CheckUniquePhoneNumber([FromBody] PhoneNumberViewModel data)
+        {
+            bool isValid = await _phoneNumberRepository.CheckIfNumberUnique(data.id, data.number);
+            return Json(isValid);
+        }
+
     }
 }

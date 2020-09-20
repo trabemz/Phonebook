@@ -18,9 +18,15 @@ namespace Phonebook.Models
         public DbSet<PhoneNumber.PhoneNumber> PhoneNumbers { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<District>();
-            builder.Entity<Microdistrict>();
-
+            builder.Entity<District>(entity => {
+                entity.HasIndex(e => e.Name).IsUnique();
+            });
+            builder.Entity<Microdistrict>(entity => {
+                    entity.HasIndex(e => e.Name).IsUnique();
+            });
+            builder.Entity<PhoneNumber.PhoneNumber>(entity => {
+                entity.HasIndex(e => e.Number).IsUnique();
+            });
             base.OnModelCreating(builder);
         }
     }

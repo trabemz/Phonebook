@@ -9,7 +9,7 @@ namespace Phonebook.Models.PhoneNumber
 {
     public class PhoneNumber
     {
-        public int Id { get; set; }
+        public int ID { get; set; }
 
         [ForeignKey("District")]
         [Display(Name = "Округ")]

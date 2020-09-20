@@ -12,5 +12,7 @@ namespace Phonebook.Models.PhoneNumber
         public Task<PhoneNumber> GetById(int Id);
         public Task Update();
         public Task DeleteById(int Id);
+
+        public Task<bool> CheckIfNumberUnique(int? id, string number);
     }
 }

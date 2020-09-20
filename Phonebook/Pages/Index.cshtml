@@ -12,7 +12,7 @@
         .InsertAction("Post")
         .UpdateAction("Put")
         .DeleteAction("Delete")
-        .Key("Id")
+        .Key("ID")
     )
     .FilterRow(filterRow => filterRow
         .Visible(true)
@@ -42,11 +42,17 @@
         columns.AddFor(m => m.FullName);
 
         columns.AddFor(m => m.Number)
-            .CellTemplate(new JS("customizePhoneNumber"));
+            .CellTemplate(new JS("customizePhoneNumber"))
+            .ValidationRules(vr =>
+             {
+                 vr.AddAsync()
+                     .Message("Данный номер уже есть в телефонном справочнике.")
+                     .ValidationCallback("asyncValidationNumber");
+             });
 
         columns.AddFor(m => m.Note);
 
-        
+
         columns.Add()
             .Type(GridCommandColumnType.Buttons)
             .CssClass("Grid__Column--ComandButtons")
@@ -102,7 +108,7 @@
         display: none;
     }
 </style>
-<script>
+<script type="text/javascript">
 
     function customizePhoneNumber($cell, cellInfo) {
         rowIndex = cellInfo.rowIndex;
@@ -119,6 +125,7 @@
         $(row).trigger("click")
     }
 
+    //for cascading lookup district-microdistrict
     function onEditorPreparing(e) {
         if(e.parentType === "dataRow" && e.dataField === "MicrodistrictId") {
             e.editorOptions.disabled = (typeof e.row.data.DistrictId !== "number");
@@ -136,5 +143,23 @@
     function setDistrictValue(rowData, value) {
         rowData.DistrictId = value;
         rowData.MicrodistrictId = null;
+    }
+    //checks uniqness of phone number
+    function asyncValidationNumber(params) {
+        //pass all data to a viewmodel
+        var model = {};
+        model.id = params.data.ID;
+        model.number = params.value;
+
+        var data = JSON.stringify(model);      
+        return $.ajax({
+            url: '@Url.Action("CheckUniquePhoneNumber", "PhoneNumbersWebApi")',
+            type: "Post",
+            contentType: "application/json",
+            data: data,
+            error: (error) => {
+                console.log(JSON.stringify(error));
+            }
+        });
     }
 </script>

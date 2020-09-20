@@ -15,11 +15,17 @@ namespace Phonebook.Models.PhoneNumber
             _context = context;
         }
 
+        public async Task<bool> CheckIfNumberUnique(int? id, string number)
+        {
+            PhoneNumber phoneByNumber = await _context.PhoneNumbers.FirstOrDefaultAsync(phone => phone.Number == number);
+            return phoneByNumber == null ? true : id == phoneByNumber.ID;
+        }
+
         public async Task<int> Create(PhoneNumber number)
         {
             var result = _context.PhoneNumbers.Add(number);
             await Update();
-            return result.Entity.Id;
+            return result.Entity.ID;
         }
 
         public async Task DeleteById(int Id)
@@ -36,7 +42,7 @@ namespace Phonebook.Models.PhoneNumber
 
         public async Task<PhoneNumber> GetById(int Id)
         {
-            var model = await _context.PhoneNumbers.FirstOrDefaultAsync(item => item.Id == Id);
+            var model = await _context.PhoneNumbers.FirstOrDefaultAsync(item => item.ID == Id);
             return model;
         }
 
@@ -44,5 +50,6 @@ namespace Phonebook.Models.PhoneNumber
         {
             await _context.SaveChangesAsync();
         }
+
     }
 }
