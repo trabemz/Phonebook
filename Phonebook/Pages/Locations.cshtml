@@ -3,7 +3,7 @@
     ViewData["Title"] = "Locations";
 }
 
-<h2>Locations</h2>
+<h2>Административные округа и районы</h2>
 <div class="row no-gutters">
     <div class="col">
         @(Html.DevExtreme().DataGrid<Phonebook.Models.Location.District>()
@@ -19,6 +19,10 @@
             .Selection(s => s.Mode(SelectionMode.Single))
             .HoverStateEnabled(true)
             .RemoteOperations(true)
+            .ShowColumnHeaders(false)
+            .ShowBorders(false)
+            .ShowColumnLines(false)
+            .ShowRowLines(false)
             .Columns(columns => {
 
                 columns.AddFor(m => m.Name)
@@ -28,15 +32,28 @@
                         .Message("Название административного округа должно быть уникально.")
                         .ValidationCallback("asyncValidationName");
                 });
+
+                columns.Add().Type(GridCommandColumnType.Buttons)
+                   .Visible(false);
+
+                columns.Add()
+                    .Type(GridCommandColumnType.Buttons)
+                    .Buttons(btns =>
+                    {
+                        btns.Add().Name(GridColumnButtonName.Save);
+                    });
             })
             .Editing(e => e
+                .Mode(GridEditMode.Row)
                 .AllowAdding(true)
                 .AllowUpdating(true)
                 .AllowDeleting(true)
+                .UseIcons(true)
             )
             .OnContentReady("selection")
             .OnSelectionChanged("selection")
-
+            .OnContextMenuPreparing("parseContextMenu")
+            .OnToolbarPreparing("hideToolbar")
         )
     </div>
     <div class="col">
@@ -50,6 +67,10 @@
                 .DeleteAction("Delete")
                 .Key("ID")
             )
+            .ShowColumnHeaders(false)
+            .ShowBorders(false)
+            .ShowColumnLines(false)
+            .ShowRowLines(false)
             .RemoteOperations(true)
             .Columns(columns => {
 
@@ -65,13 +86,53 @@
                                 .DataSource(d => d.Mvc().Controller("TerritorialUnitsWebApi").LoadAction("GetDistricts").Key("ID"))
                                 .ValueExpr("ID")
                                 .DisplayExpr("Name")
-                            );
+                            )
+                    .ValidationRules(vr =>
+                        {
+                            vr.AddRequired()
+                               .Message("Необходимо указать соответсвующий административный округ.");
+                        })
+                    .Visible(false);
+
+                columns.Add().Type(GridCommandColumnType.Buttons)
+                    .Visible(false);
+
+                columns.Add()
+                    .Type(GridCommandColumnType.Buttons)
+                    .Buttons(btns =>
+                    {
+                        btns.Add().Name(GridColumnButtonName.Save);
+                    });
             })
             .Editing(e => e
+                .Mode(GridEditMode.Popup)
                 .AllowAdding(true)
                 .AllowUpdating(true)
                 .AllowDeleting(true)
+                .UseIcons(true)
+                .Popup(p => p
+                    .Title("Район")
+                    .ID("MicrodistrictPopup")
+                    .ShowTitle(true)
+                    .MaxWidth(500)
+                    .MaxHeight(285)
+                )
+                .Form(f => f.Items(items =>
+                {
+                    items.AddGroup()
+                        .ColCount(1)
+                        .ColSpan(2)
+                        .Items(groupItems =>
+                        {
+                            groupItems.AddSimpleFor(m => m.DistrictId);
+                            groupItems.AddSimpleFor(m => m.Name);
+                        });
+                })
+                .ID("MicrodistrictForm"))
+
             )
+            .OnContextMenuPreparing("parseContextMenu")
+            .OnToolbarPreparing("hideToolbar")
         )
     </div>
 </div>
@@ -79,6 +140,7 @@
 
 
 <script>
+
     function selection(selectedItems) {
         var dataGridMicrodistrict = $("#microdistricts").dxDataGrid("instance");
         var districtId;
@@ -99,7 +161,7 @@
 
     //checks uniqness of phone number
     function asyncValidationName(params) {
-        //pass all data to a viewmodel
+        //create UniqueViewModel
         var model = {};
         model.id = params.data.ID;
         model.UniqueText = params.value;
@@ -114,6 +176,35 @@
                 console.log(JSON.stringify(error));
             }
         });
+    }
+
+    //create context menu
+    function parseContextMenu(e) {
+        if (e.row.rowType === "data") {
+            e.items = [{
+                text: "Редактировать",
+                onItemClick: function () {
+                    e.component.editRow(e.row.rowIndex);
+                }
+            },
+            {
+                text: "Добавить",
+                onItemClick: function () {
+                    e.component.addRow();
+                }
+            },
+            {
+                text: "Удалить",
+                onItemClick: function () {
+                    e.component.deleteRow(e.row.rowIndex);
+                }
+            }];
+        }
+    }
+
+    //hide toolbar because we use context menu
+    function hideToolbar(e) {
+        e.toolbarOptions.visible = false;  
     }
 
 </script>
