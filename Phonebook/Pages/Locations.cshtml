@@ -6,6 +6,7 @@
 <h2>Locations</h2>
 
 @(Html.DevExtreme().DataGrid<Phonebook.Models.Location.District>()
+    .ID("districts")
     .DataSource(ds => ds.Mvc()
         .Controller("TerritorialUnitsWebApi")
         .LoadAction("GetDistricts")
@@ -14,6 +15,8 @@
         .DeleteAction("Delete")
         .Key("ID")
     )
+    .Selection(s => s.Mode(SelectionMode.Single))
+    .HoverStateEnabled(true)
     .RemoteOperations(true)
     .Columns(columns => {
 
@@ -24,8 +27,12 @@
         .AllowUpdating(true)
         .AllowDeleting(true)
     )
+    .OnContentReady("selection")
+    .OnSelectionChanged("selection")
+    
 )
 @(Html.DevExtreme().DataGrid<Phonebook.Models.Location.Microdistrict>()
+    .ID("microdistricts")
     .DataSource(ds => ds.Mvc()
         .Controller("TerritorialUnitsWebApi")
         .LoadAction("GetMicrodistricts")
@@ -51,3 +58,23 @@
         .AllowDeleting(true)
     )
 )
+
+<script>
+    function selection(selectedItems) {
+        var dataGridMicrodistrict = $("#microdistricts").dxDataGrid("instance");
+        var districtId;
+        if (!selectedItems.selectedRowKeys) {
+            //select first district 
+            var dataGridDistrict = $("#districts").dxDataGrid("instance");
+            dataGridDistrict.selectRowsByIndexes(0);
+            //get Id of first district
+            districtId = dataGridDistrict.getKeyByRowIndex(0);
+        }
+        else {
+            //get Id of selected district
+            districtId = selectedItems.selectedRowKeys[0];
+        } 
+        //filter microdistricts by selected district
+        dataGridMicrodistrict.filter(["DistrictId", "=", districtId]);
+    }
+</script>

@@ -72,7 +72,7 @@ namespace Phonebook.Controllers
 
         [HttpDelete]
         public async Task Delete(int key) {
-            _phoneNumberRepository.DeleteById(key);
+            await _phoneNumberRepository.DeleteById(key);
         }
 
         private void PopulateModel(PhoneNumber model, IDictionary values) {

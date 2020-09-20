@@ -44,25 +44,28 @@
         columns.AddFor(m => m.Number)
             .CellTemplate(new JS("customizePhoneNumber"));
 
-        ////triggers by clickEditBtn in cellTemplate of Number column 
+        columns.AddFor(m => m.Note);
+
+        
         columns.Add()
             .Type(GridCommandColumnType.Buttons)
             .CssClass("Grid__Column--ComandButtons")
             .Buttons(btns =>
             {
+                //triggers by clickEditBtn in cellTemplate of Number column 
                 btns.Add()
                 .Name(GridColumnButtonName.Edit)
                 .CssClass("JQ_EditButton");
-
+                btns.Add()
+                .Name(GridColumnButtonName.Delete);
             });
-
-        columns.AddFor(m => m.Note);
     })
     .Editing(e => e
         .Mode(GridEditMode.Popup)
         .AllowAdding(true)
         .AllowUpdating(true)
         .AllowDeleting(true)
+        .UseIcons(true)
         .Popup(p => p
             .Title("Телефонная карточка")
             .ShowTitle(true)
@@ -95,7 +98,7 @@
     .OnEditorPreparing("onEditorPreparing")
 )
 <style>
-    .Grid__Column--ComandButtons {
+    .JQ_EditButton {
         display: none;
     }
 </style>
@@ -122,7 +125,6 @@
         }
     }
     function getMicrodistricts(options) {
-        console.log(options.data);
         return {
             store: DevExpress.data.AspNet.createStore({
                 key: "ID",
