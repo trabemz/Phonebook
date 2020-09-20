@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace Phonebook.Models
 {
-    public class PhoneNumberViewModel
+    public class UniqueViewModel
     {
-        public int? id { get; set; }
-        public string number { get; set; }
+        public int? ID { get; set; }
+        public string UniqueText { get; set; }
     }
 }

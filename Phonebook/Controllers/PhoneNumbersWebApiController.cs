@@ -124,9 +124,9 @@ namespace Phonebook.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> CheckUniquePhoneNumber([FromBody] PhoneNumberViewModel data)
+        public async Task<JsonResult> CheckUniquePhoneNumber([FromBody] UniqueViewModel data)
         {
-            bool isValid = await _phoneNumberRepository.CheckIfNumberUnique(data.id, data.number);
+            bool isValid = await _phoneNumberRepository.CheckIfNumberUnique(data.ID, data.UniqueText);
             return Json(isValid);
         }
 

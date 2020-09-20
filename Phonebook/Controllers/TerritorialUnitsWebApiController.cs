@@ -166,5 +166,13 @@ namespace Phonebook.Controllers
 
             return String.Join(" ", messages);
         }
+
+        [HttpPost]
+        public async Task<JsonResult> CheckUniqueName([FromBody] UniqueViewModel data)
+        {
+            TerritorialUnit unit = await _context.Locations.FirstOrDefaultAsync(u => u.Name == data.UniqueText);
+            bool isValid = unit == null || data.ID == unit.ID;
+            return Json(isValid);
+        }
     }
 }

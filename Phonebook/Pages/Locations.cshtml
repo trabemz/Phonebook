@@ -21,7 +21,13 @@
             .RemoteOperations(true)
             .Columns(columns => {
 
-                columns.AddFor(m => m.Name);
+                columns.AddFor(m => m.Name)
+                .ValidationRules(vr =>
+                {
+                    vr.AddAsync()
+                        .Message("Название административного округа должно быть уникально.")
+                        .ValidationCallback("asyncValidationName");
+                });
             })
             .Editing(e => e
                 .AllowAdding(true)
@@ -47,7 +53,13 @@
             .RemoteOperations(true)
             .Columns(columns => {
 
-                columns.AddFor(m => m.Name); 
+                columns.AddFor(m => m.Name)
+                    .ValidationRules(vr =>
+                    {
+                        vr.AddAsync()
+                            .Message("Название района должно быть уникально.")
+                            .ValidationCallback("asyncValidationName");
+                    });
                 columns.AddFor(m => m.DistrictId)
                     .Lookup(lookup => lookup
                                 .DataSource(d => d.Mvc().Controller("TerritorialUnitsWebApi").LoadAction("GetDistricts").Key("ID"))
@@ -84,5 +96,24 @@
         //filter microdistricts by selected district
         dataGridMicrodistrict.filter(["DistrictId", "=", districtId]);
     }
-    
+
+    //checks uniqness of phone number
+    function asyncValidationName(params) {
+        //pass all data to a viewmodel
+        var model = {};
+        model.id = params.data.ID;
+        model.UniqueText = params.value;
+
+        var data = JSON.stringify(model);
+        return $.ajax({
+            url: '@Url.Action("CheckUniqueName", "TerritorialUnitsWebApi")',
+            type: "Post",
+            contentType: "application/json",
+            data: data,
+            error: (error) => {
+                console.log(JSON.stringify(error));
+            }
+        });
+    }
+
 </script>

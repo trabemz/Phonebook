@@ -148,8 +148,8 @@
     function asyncValidationNumber(params) {
         //pass all data to a viewmodel
         var model = {};
-        model.id = params.data.ID;
-        model.number = params.value;
+        model.ID = params.data.ID;
+        model.UniqueText = params.value;
 
         var data = JSON.stringify(model);      
         return $.ajax({
