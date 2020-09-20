@@ -20,22 +20,16 @@ namespace Phonebook.Controllers
     public class PhoneNumbersWebApiController : Controller
     {
         private readonly PhonebookContext _context;
+        private readonly IPhoneNumberRepository _phoneNumberRepository;
 
-        public PhoneNumbersWebApiController(PhonebookContext context) {
+        public PhoneNumbersWebApiController(PhonebookContext context, IPhoneNumberRepository phoneNumberRepository) {
             _context = context;
+            _phoneNumberRepository = phoneNumberRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions) {
-            var phonenumbers = _context.PhoneNumbers.Select(i => new {
-                i.Id,
-                i.DistrictId,
-                i.MicrodistrictId,
-                i.Address,
-                i.FullName,
-                i.Number,
-                i.Note
-            });
+            var phonenumbers = _phoneNumberRepository.GetAll();
 
             // If you work with a large amount of data, consider specifying the PaginateViaPrimaryKey and PrimaryKey properties.
             // In this case, keys and data are loaded in separate queries. This can make the SQL execution plan more efficient.
@@ -55,15 +49,14 @@ namespace Phonebook.Controllers
             if(!TryValidateModel(model))
                 return BadRequest(GetFullErrorMessage(ModelState));
 
-            var result = _context.PhoneNumbers.Add(model);
-            await _context.SaveChangesAsync();
+            var resultId = await _phoneNumberRepository.Create(model);
 
-            return Json(new { result.Entity.Id });
+            return Json(new { resultId });
         }
 
         [HttpPut]
         public async Task<IActionResult> Put(int key, string values) {
-            var model = await _context.PhoneNumbers.FirstOrDefaultAsync(item => item.Id == key);
+            var model = await _phoneNumberRepository.GetById(key);
             if(model == null)
                 return StatusCode(409, "Object not found");
 
@@ -73,16 +66,13 @@ namespace Phonebook.Controllers
             if(!TryValidateModel(model))
                 return BadRequest(GetFullErrorMessage(ModelState));
 
-            await _context.SaveChangesAsync();
+            await _phoneNumberRepository.Update();
             return Ok();
         }
 
         [HttpDelete]
         public async Task Delete(int key) {
-            var model = await _context.PhoneNumbers.FirstOrDefaultAsync(item => item.Id == key);
-
-            _context.PhoneNumbers.Remove(model);
-            await _context.SaveChangesAsync();
+            _phoneNumberRepository.DeleteById(key);
         }
 
         private void PopulateModel(PhoneNumber model, IDictionary values) {

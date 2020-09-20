@@ -10,6 +10,7 @@ using Newtonsoft.Json.Serialization;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Phonebook.Models;
+using Phonebook.Models.PhoneNumber;
 
 namespace Phonebook
 {
@@ -27,6 +28,8 @@ namespace Phonebook
         {
             services.AddDbContextPool<PhonebookContext>(options => 
                 options.UseSqlServer(Configuration.GetConnectionString("localDbConnection")));
+
+            services.AddScoped<IPhoneNumberRepository, PhoneNumberRepository>();
 
             // Add framework services.
             services
