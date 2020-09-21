@@ -15,18 +15,16 @@
         .DeleteAction("Delete")
         .Key("ID")
     )
+    .OnToolbarPreparing("customizeAddBtn")
+    .HeaderFilter(headerFilter => headerFilter.Visible(true))
     .FilterRow(filterRow => filterRow
         .Visible(true)
         .ApplyFilter(GridApplyFilterMode.Auto)
     )
-    .HeaderFilter(headerFilter => headerFilter.Visible(true))
-    .LoadPanel(loadPanel => loadPanel.Enabled(false))
-    .Scrolling(scrolling => scrolling
-        .Mode(GridScrollingMode.Virtual)
-        .RowRenderingMode(GridRowRenderingMode.Virtual))
-    .Paging(p => p.PageSize(50))
     .RemoteOperations(true)
     .FocusedRowEnabled(true)
+    .ColumnChooser(c => c.Enabled(true))
+
     .Columns(columns => {
 
         columns.AddFor(m => m.DistrictId)
@@ -82,15 +80,19 @@
                 ti.Add()
                    .Widget(w => w.Button()
                        .Text("Удалить")
-                       .OnClick("deletePhoneNumber")
-                       .ID("DeletePhoneNumberButton"))
+                       .OnClick("deleteFocusedPhoneNumberFromPopup")
+                       .ID("DeletePhoneNumberButton")
+                       .Type(ButtonType.Danger)
+                       .StylingMode(ButtonStylingMode.Outlined))
                    .Location(ToolbarItemLocation.Before)
                    .Toolbar(Toolbar.Bottom);
 
                 ti.Add()
                     .Widget(w => w.Button()
                         .Text("Сохранить")
-                        .OnClick("savePhoneNumber"))
+                        .OnClick("savePhoneNumber")
+                        .Type(ButtonType.Success)
+                        .StylingMode(ButtonStylingMode.Outlined))
                     .Location(ToolbarItemLocation.After)
                     .Toolbar(Toolbar.Bottom);
 
@@ -122,82 +124,43 @@
 
     )
     .OnEditorPreparing("onEditorPreparing")
-    .OnToolbarPreparing("customizeAddBtn")
+    .LoadPanel(loadPanel => loadPanel.Enabled(false))
+    .Scrolling(scrolling => scrolling
+        .Mode(GridScrollingMode.Virtual)
+        .RowRenderingMode(GridRowRenderingMode.Virtual))
+    .Paging(p => p.PageSize(50))
+    .OnContextMenuPreparing("parseContextMenu")
+   
 )
-<style>
-    .JQ_EditButton {
-        display: none;
-    }
-</style>
-<script type="text/javascript">
-    //displays the phone number in table in the correct form and adds click event
-    function customizePhoneNumber($cell, cellInfo) {
-        rowIndex = cellInfo.rowIndex;
-        number = cellInfo.text;
-        formatedNumber = number ? "+7(" + number.slice(0, 3) + ")" + number.slice(3, 6) + "-" + number.slice(6, 8) + "-" + number.slice(8, 10) : "";
-        $cell.append("<a href='#' onclick='clickEditBtn(" + rowIndex + ")'>" + formatedNumber +"</a>");
-    }
 
-    //trigger click Edit button by link on Phone Number
-    function clickEditBtn(rowIndex) {
-        var dataGrid = $("#PhoneNumbers").dxDataGrid("instance");
-        dataGrid.editRow(rowIndex);
-        dataGrid.option("focusedRowIndex", rowIndex);
-    }
-
-    //for cascading lookup district-microdistrict
-    function onEditorPreparing(e) {
-        if(e.parentType === "dataRow" && e.dataField === "MicrodistrictId") {
-            e.editorOptions.disabled = (typeof e.row.data.DistrictId !== "number");
+@section Styles{
+    <style>
+        .JQ_EditButton {
+            display: none;
         }
-    }
-    function getMicrodistricts(options) {
-        return {
-            store: DevExpress.data.AspNet.createStore({
-                key: "ID",
-                loadUrl: '@Url.Action("GetMicrodistricts", "TerritorialUnitsWebApi", new { httproute = true })'
-            }),
-            filter: options.data ? ["DistrictId", "=", options.data.DistrictId] : null
-        };
-    }
-    function setDistrictValue(rowData, value) {
-        rowData.DistrictId = value;
-        rowData.MicrodistrictId = null;
-    }
 
-    //checks uniqness of phone number
-    function asyncValidationNumber(params) {
-        //pass all data to a viewmodel
-        var model = {};
-        model.ID = params.data.ID;
-        model.UniqueText = params.value;
+        .dx-theme-generic-typography .dx-row-focused a.phonebook__link {
+            color: white;
+        }
 
-        var data = JSON.stringify(model);
-        return $.ajax({
-            url: '@Url.Action("CheckUniquePhoneNumber", "PhoneNumbersWebApi")',
-            type: "Post",
-            contentType: "application/json",
-            data: data,
-            error: (error) => {
-                console.log(JSON.stringify(error));
-            }
-        });
-    }
-    //add phone button is displayed with text
-    function customizeAddBtn(e) {
-        e.toolbarOptions.items[0].showText = "Always";
-    }
+        #IndexNavItem a {
+            border-bottom: 2px solid #728e94;
+        }
+    </style>
+}
 
-    function savePhoneNumber() {
-        var dataGrid = $("#PhoneNumbers").dxDataGrid("instance");
-        dataGrid.saveEditData();
-    }
-    function deletePhoneNumber(e) {
-        var dataGrid = $("#PhoneNumbers").dxDataGrid("instance");
-        var index = dataGrid.option("focusedRowIndex");
-        console.log(index);
-        $("#PhoneNumbersPopup").dxPopup("hide");
-        dataGrid.deleteRow(index);
 
-    }
-</script>
+@section Scripts{
+    <script src="~/js/pages/index.js" asp-append-version="true"></script>
+    <script>
+        function getMicrodistricts(options) {
+            return {
+                store: DevExpress.data.AspNet.createStore({
+                    key: "ID",
+                    loadUrl: '@Url.Action("GetMicrodistricts", "TerritorialUnitsWebApi", new { httproute = true })'
+                }),
+                filter: options.data ? ["DistrictId", "=", options.data.DistrictId] : null
+            };
+        }
+    </script>
+}

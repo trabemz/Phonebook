@@ -4,14 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Phonebook.Models;
+using Phonebook.Models.Location;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Phonebook.Models;
-using Phonebook.Models.Location;
 
 namespace Phonebook.Controllers
 {
@@ -20,13 +19,16 @@ namespace Phonebook.Controllers
     {
         private readonly PhonebookContext _context;
 
-        public TerritorialUnitsWebApiController(PhonebookContext context) {
+        public TerritorialUnitsWebApiController(PhonebookContext context)
+        {
             _context = context;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDistricts(DataSourceLoadOptions loadOptions) {
-            var locations = _context.Locations.OfType<District>().Select(i => new {
+        public async Task<IActionResult> GetDistricts(DataSourceLoadOptions loadOptions)
+        {
+            var locations = _context.Locations.OfType<District>().Select(i => new
+            {
                 i.ID,
                 i.Name
             });
@@ -43,7 +45,8 @@ namespace Phonebook.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMicrodistricts(DataSourceLoadOptions loadOptions)
         {
-            var locations = _context.Locations.OfType<Microdistrict>().Select(i => new {
+            var locations = _context.Locations.OfType<Microdistrict>().Select(i => new
+            {
                 i.ID,
                 i.Name,
                 i.DistrictId
@@ -75,9 +78,10 @@ namespace Phonebook.Controllers
             PopulateModel(model, valuesDict);
             return Post(model);
         }
-        public async Task<IActionResult> Post(TerritorialUnit model) {
-            
-            if(!TryValidateModel(model))
+        public async Task<IActionResult> Post(TerritorialUnit model)
+        {
+
+            if (!TryValidateModel(model))
                 return BadRequest(GetFullErrorMessage(ModelState));
 
             var result = _context.Locations.Add(model);
@@ -87,7 +91,8 @@ namespace Phonebook.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> PutDistrict(int key, string values) {
+        public async Task<IActionResult> PutDistrict(int key, string values)
+        {
             District model = await _context.Locations.OfType<District>().FirstOrDefaultAsync(item => item.ID == key);
             if (model == null)
                 return StatusCode(409, "Object not found");
@@ -110,8 +115,9 @@ namespace Phonebook.Controllers
 
             return await Put(model);
         }
-        public async Task<IActionResult> Put(TerritorialUnit model) {
-            if(!TryValidateModel(model))
+        public async Task<IActionResult> Put(TerritorialUnit model)
+        {
+            if (!TryValidateModel(model))
                 return BadRequest(GetFullErrorMessage(ModelState));
 
             await _context.SaveChangesAsync();
@@ -119,7 +125,8 @@ namespace Phonebook.Controllers
         }
 
         [HttpDelete]
-        public async Task Delete(int key) {
+        public async Task Delete(int key)
+        {
             var model = await _context.Locations.FirstOrDefaultAsync(item => item.ID == key);
 
             _context.Locations.Remove(model);
@@ -142,25 +149,30 @@ namespace Phonebook.Controllers
             PopulateTerritorialUnitModel(model, values);
         }
 
-        private void PopulateTerritorialUnitModel(TerritorialUnit model, IDictionary values) {
+        private void PopulateTerritorialUnitModel(TerritorialUnit model, IDictionary values)
+        {
             string ID = nameof(TerritorialUnit.ID);
             string NAME = nameof(TerritorialUnit.Name);
 
-            if (values.Contains(ID)) {
+            if (values.Contains(ID))
+            {
                 model.ID = Convert.ToInt32(values[ID]);
             }
 
-            if(values.Contains(NAME)) {
+            if (values.Contains(NAME))
+            {
                 model.Name = Convert.ToString(values[NAME]);
             }
 
         }
 
-        private string GetFullErrorMessage(ModelStateDictionary modelState) {
+        private string GetFullErrorMessage(ModelStateDictionary modelState)
+        {
             var messages = new List<string>();
 
-            foreach(var entry in modelState) {
-                foreach(var error in entry.Value.Errors)
+            foreach (var entry in modelState)
+            {
+                foreach (var error in entry.Value.Errors)
                     messages.Add(error.ErrorMessage);
             }
 

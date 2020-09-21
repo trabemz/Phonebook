@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Phonebook.Models.PhoneNumber
+﻿namespace Phonebook.Models.PhoneNumber
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
     public class PhoneNumber
     {
         public int ID { get; set; }
@@ -31,13 +27,13 @@ namespace Phonebook.Models.PhoneNumber
         [Required(ErrorMessage = "Необходимо ввести номер телефона.")]
         [Display(Name = "Телефон")]
         [DataType(DataType.PhoneNumber)]
-        [RegularExpression(@"^(495|499)\d{7}$", 
+        [RegularExpression(
+            @"^(495|499)\d{7}$",
             ErrorMessage = "Введите правильный стационарный номер г.Москва. Код Москвы (495 или 499).")]
         public string Number { get; set; }
 
         [Display(Name = "Примечание")]
         [StringLength(500, ErrorMessage = "Максимальная длина примечания 500 символов.")]
         public string Note { get; set; }
-
     }
 }

@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Serialization;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Phonebook.Models;
 using Phonebook.Models.PhoneNumber;
 
@@ -26,7 +21,7 @@ namespace Phonebook
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContextPool<PhonebookContext>(options => 
+            services.AddDbContextPool<PhonebookContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("localDbConnection")));
 
             services.AddScoped<IPhoneNumberRepository, PhoneNumberRepository>();
@@ -55,7 +50,8 @@ namespace Phonebook
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapControllers();
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();

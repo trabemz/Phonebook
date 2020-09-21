@@ -16,6 +16,7 @@
                 .DeleteAction("Delete")
                 .Key("ID")
             )
+            .OnToolbarPreparing("customizeAddBtn")
             .Selection(s => s.Mode(SelectionMode.Single))
             .HoverStateEnabled(true)
             .RemoteOperations(true)
@@ -26,6 +27,7 @@
             .Columns(columns => {
 
                 columns.AddFor(m => m.Name)
+                .SortOrder(SortOrder.Asc)
                 .ValidationRules(vr =>
                 {
                     vr.AddAsync()
@@ -36,24 +38,48 @@
                 columns.Add().Type(GridCommandColumnType.Buttons)
                    .Visible(false);
 
-                columns.Add()
-                    .Type(GridCommandColumnType.Buttons)
-                    .Buttons(btns =>
-                    {
-                        btns.Add().Name(GridColumnButtonName.Save);
-                    });
             })
             .Editing(e => e
-                .Mode(GridEditMode.Row)
+                .Mode(GridEditMode.Popup)
                 .AllowAdding(true)
+                .Texts(texts => texts.AddRow("Добавить округ"))
                 .AllowUpdating(true)
                 .AllowDeleting(true)
                 .UseIcons(true)
+                 .Popup(p => p
+                    .Title("Округ")
+                    .ID("DistrictPopup")
+                    .ShowTitle(true)
+                    .MaxWidth(500)
+                    .MaxHeight(250)
+                    .ToolbarItems(ti =>
+                    {
+                        ti.Add()
+                            .Widget(w => w.Button()
+                                .Text("Сохранить")
+                                .OnClick("saveDistrict")
+                                .Type(ButtonType.Success)
+                                .StylingMode(ButtonStylingMode.Outlined))
+                            .Location(ToolbarItemLocation.After)
+                            .Toolbar(Toolbar.Bottom);
+
+                    })
+                )
+                .Form(f => f.Items(items =>
+                {
+                    items.AddGroup()
+                        .ColCount(1)
+                        .ColSpan(2)
+                        .Items(groupItems =>
+                        {
+                            groupItems.AddSimpleFor(m => m.Name);
+                        });
+                })
+                .ID("DistrictForm"))
             )
             .OnContentReady("selection")
             .OnSelectionChanged("selection")
             .OnContextMenuPreparing("parseContextMenu")
-            .OnToolbarPreparing("hideToolbar")
         )
     </div>
     <div class="col">
@@ -67,14 +93,17 @@
                 .DeleteAction("Delete")
                 .Key("ID")
             )
+            .OnToolbarPreparing("customizeAddBtn")
             .ShowColumnHeaders(false)
             .ShowBorders(false)
+            .HoverStateEnabled(true)
             .ShowColumnLines(false)
             .ShowRowLines(false)
             .RemoteOperations(true)
             .Columns(columns => {
 
                 columns.AddFor(m => m.Name)
+                    .SortOrder(SortOrder.Asc)
                     .ValidationRules(vr =>
                     {
                         vr.AddAsync()
@@ -88,34 +117,41 @@
                                 .DisplayExpr("Name")
                             )
                     .ValidationRules(vr =>
-                        {
-                            vr.AddRequired()
-                               .Message("Необходимо указать соответсвующий административный округ.");
-                        })
+                    {
+                        vr.AddRequired()
+                           .Message("Необходимо указать соответсвующий административный округ.");
+                    })
                     .Visible(false);
 
                 columns.Add().Type(GridCommandColumnType.Buttons)
                     .Visible(false);
 
-                columns.Add()
-                    .Type(GridCommandColumnType.Buttons)
-                    .Buttons(btns =>
-                    {
-                        btns.Add().Name(GridColumnButtonName.Save);
-                    });
             })
             .Editing(e => e
                 .Mode(GridEditMode.Popup)
                 .AllowAdding(true)
+                .Texts(texts => texts.AddRow("Добавить район"))
                 .AllowUpdating(true)
                 .AllowDeleting(true)
-                .UseIcons(true)
                 .Popup(p => p
                     .Title("Район")
                     .ID("MicrodistrictPopup")
                     .ShowTitle(true)
                     .MaxWidth(500)
                     .MaxHeight(285)
+                    .ToolbarItems(ti =>
+                    {
+
+                        ti.Add()
+                            .Widget(w => w.Button()
+                                .Text("Сохранить")
+                                .OnClick("saveMicrodistrict")
+                                .Type(ButtonType.Success)
+                                .StylingMode(ButtonStylingMode.Outlined))
+                            .Location(ToolbarItemLocation.After)
+                            .Toolbar(Toolbar.Bottom);
+
+                    })
                 )
                 .Form(f => f.Items(items =>
                 {
@@ -132,79 +168,35 @@
 
             )
             .OnContextMenuPreparing("parseContextMenu")
-            .OnToolbarPreparing("hideToolbar")
         )
     </div>
 </div>
 
-
-
-<script>
-
-    function selection(selectedItems) {
-        var dataGridMicrodistrict = $("#microdistricts").dxDataGrid("instance");
-        var districtId;
-        if (!selectedItems.selectedRowKeys) {
-            //select first district
-            var dataGridDistrict = $("#districts").dxDataGrid("instance");
-            dataGridDistrict.selectRowsByIndexes(0);
-            //get Id of first district
-            districtId = dataGridDistrict.getKeyByRowIndex(0);
+@section Styles{
+    <style>
+        #LocationsNavItem a {
+            border-bottom: 2px solid #728e94;
         }
-        else {
-            //get Id of selected district
-            districtId = selectedItems.selectedRowKeys[0];
+
+        #districts .dx-datagrid-table {
+            background-color: white;
         }
-        //filter microdistricts by selected district
-        dataGridMicrodistrict.filter(["DistrictId", "=", districtId]);
-    }
 
-    //checks uniqness of phone number
-    function asyncValidationName(params) {
-        //create UniqueViewModel
-        var model = {};
-        model.id = params.data.ID;
-        model.UniqueText = params.value;
-
-        var data = JSON.stringify(model);
-        return $.ajax({
-            url: '@Url.Action("CheckUniqueName", "TerritorialUnitsWebApi")',
-            type: "Post",
-            contentType: "application/json",
-            data: data,
-            error: (error) => {
-                console.log(JSON.stringify(error));
-            }
-        });
-    }
-
-    //create context menu
-    function parseContextMenu(e) {
-        if (e.row.rowType === "data") {
-            e.items = [{
-                text: "Редактировать",
-                onItemClick: function () {
-                    e.component.editRow(e.row.rowIndex);
-                }
-            },
-            {
-                text: "Добавить",
-                onItemClick: function () {
-                    e.component.addRow();
-                }
-            },
-            {
-                text: "Удалить",
-                onItemClick: function () {
-                    e.component.deleteRow(e.row.rowIndex);
-                }
-            }];
+        #districts .dx-data-row td {
+            font-size: 15px
         }
-    }
 
-    //hide toolbar because we use context menu
-    function hideToolbar(e) {
-        e.toolbarOptions.visible = false;  
-    }
+        #microdistricts .dx-data-row td {
+            padding-bottom: 8px;
+        }
 
-</script>
+        #microdistricts .dx-datagrid-table {
+            background-color: #3cbab2;
+            color: white;
+        }
+    </style>
+}
+
+@section Scripts{
+    <script src="~/js/pages/locations.js" asp-append-version="true"></script>
+}

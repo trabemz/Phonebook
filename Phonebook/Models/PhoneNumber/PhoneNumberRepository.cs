@@ -1,7 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,7 +15,7 @@ namespace Phonebook.Models.PhoneNumber
         public async Task<bool> CheckIfNumberUnique(int? id, string number)
         {
             PhoneNumber phoneByNumber = await _context.PhoneNumbers.FirstOrDefaultAsync(phone => phone.Number == number);
-            return phoneByNumber == null ? true : id == phoneByNumber.ID;
+            return phoneByNumber == null || id == phoneByNumber.ID;
         }
 
         public async Task<int> Create(PhoneNumber number)
